@@ -15,13 +15,13 @@
 -- along with Invenio; if not, write to the Free Software Foundation, Inc.,
 -- 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
-INSERT INTO user VALUES (2,'jekyll@cds.cern.ch',AES_ENCRYPT(email,'j123ekyll'),'1',NULL,'jekyll','');
-INSERT INTO user VALUES (3,'hyde@cds.cern.ch',AES_ENCRYPT(email,'h123yde'),'1',NULL,'hyde','');
-INSERT INTO user VALUES (4,'dorian.gray@cds.cern.ch',AES_ENCRYPT(email,'d123orian'),'1',NULL,'dorian','');
-INSERT INTO user VALUES (5,'romeo.montague@cds.cern.ch',AES_ENCRYPT(email,'r123omeo'),'1',NULL,'romeo','');
-INSERT INTO user VALUES (6,'juliet.capulet@cds.cern.ch',AES_ENCRYPT(email,'j123uliet'),'1',NULL,'juliet','');
-INSERT INTO user VALUES (7,'benvolio.montague@cds.cern.ch',AES_ENCRYPT(email,'b123envolio'),'1',NULL,'benvolio','');
-INSERT INTO user VALUES (8,'balthasar.montague@cds.cern.ch',AES_ENCRYPT(email,'b123althasar'),'1',NULL,'balthasar','');
+INSERT INTO user VALUES (2,'jekyll@cds.cern.ch',AES_ENCRYPT(email,'j123ekyll'),'1',NULL,'jekyll','0000-00-00 00:00:00');
+INSERT INTO user VALUES (3,'hyde@cds.cern.ch',AES_ENCRYPT(email,'h123yde'),'1',NULL,'hyde','0000-00-00 00:00:00');
+INSERT INTO user VALUES (4,'dorian.gray@cds.cern.ch',AES_ENCRYPT(email,'d123orian'),'1',NULL,'dorian','0000-00-00 00:00:00');
+INSERT INTO user VALUES (5,'romeo.montague@cds.cern.ch',AES_ENCRYPT(email,'r123omeo'),'1',NULL,'romeo','0000-00-00 00:00:00');
+INSERT INTO user VALUES (6,'juliet.capulet@cds.cern.ch',AES_ENCRYPT(email,'j123uliet'),'1',NULL,'juliet','0000-00-00 00:00:00');
+INSERT INTO user VALUES (7,'benvolio.montague@cds.cern.ch',AES_ENCRYPT(email,'b123envolio'),'1',NULL,'benvolio','0000-00-00 00:00:00');
+INSERT INTO user VALUES (8,'balthasar.montague@cds.cern.ch',AES_ENCRYPT(email,'b123althasar'),'1',NULL,'balthasar','0000-00-00 00:00:00');
 INSERT INTO usergroup VALUES (1,'Theses viewers','Theses viewers internal group','VO','INTERNAL');
 INSERT INTO usergroup VALUES (2,'montague-family','The Montague family.','VM','INTERNAL');
 INSERT INTO usergroup VALUES (3,'ALEPH viewers','ALEPH viewers internal group','VO','INTERNAL');

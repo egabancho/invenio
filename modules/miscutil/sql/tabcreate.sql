@@ -3204,25 +3204,25 @@ CREATE TABLE IF NOT EXISTS oaiREPOSITORY (
   setName varchar(255) NOT NULL default '',
   setSpec varchar(255) NOT NULL default 'GLOBAL_SET',
   setCollection varchar(255) NOT NULL default '',
-  setDescription text NOT NULL default '',
-  setDefinition text NOT NULL default '',
+  setDescription text NOT NULL,
+  setDefinition text NOT NULL,
   setRecList longblob,
   last_updated datetime NOT NULL default '1970-01-01',
-  p1 text NOT NULL default '',
-  f1 text NOT NULL default '',
-  m1 text NOT NULL default '',
-  p2 text NOT NULL default '',
-  f2 text NOT NULL default '',
-  m2 text NOT NULL default '',
-  p3 text NOT NULL default '',
-  f3 text NOT NULL default '',
-  m3 text NOT NULL default '',
+  p1 text NOT NULL,
+  f1 text NOT NULL,
+  m1 text NOT NULL,
+  p2 text NOT NULL,
+  f2 text NOT NULL,
+  m2 text NOT NULL,
+  p3 text NOT NULL,
+  f3 text NOT NULL,
+  m3 text NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=MyISAM;
 
 CREATE TABLE IF NOT EXISTS oaiHARVEST (
   id mediumint(9) unsigned NOT NULL auto_increment,
-  baseurl varchar(255) NOT NULL default '',
+  baseurl varchar(255) NOT NULL,
   metadataprefix varchar(255) NOT NULL default 'oai_dc',
   arguments BLOB NULL default NULL,
   comment text,
@@ -3230,7 +3230,7 @@ CREATE TABLE IF NOT EXISTS oaiHARVEST (
   lastrun datetime,
   frequency mediumint(12) NOT NULL default '0',
   postprocess varchar(20) NOT NULL default 'h',
-  setspecs text NOT NULL default '',
+  setspecs text NOT NULL,
   PRIMARY KEY  (id)
 ) ENGINE=MyISAM;
 
@@ -3294,7 +3294,7 @@ CREATE TABLE IF NOT EXISTS collection_example (
 
 CREATE TABLE IF NOT EXISTS example (
   id mediumint(9) unsigned NOT NULL auto_increment,
-  type text NOT NULL default '',
+  type text NOT NULL,
   body text NOT NULL,
   PRIMARY KEY  (id)
 ) ENGINE=MyISAM;
@@ -3391,7 +3391,7 @@ CREATE TABLE IF NOT EXISTS tag (
 
 CREATE TABLE IF NOT EXISTS bibdoc (
   id mediumint(9) unsigned NOT NULL auto_increment,
-  status text NOT NULL default '',
+  status text NOT NULL,
   docname varchar(250) COLLATE utf8_bin default NULL, -- now NULL means that this is new version bibdoc
   creation_date datetime NOT NULL default '0000-00-00',
   modification_date datetime NOT NULL default '0000-00-00',
@@ -3517,7 +3517,7 @@ CREATE TABLE IF NOT EXISTS oauth1_storage (
 CREATE TABLE IF NOT EXISTS usergroup (
   id int(15) unsigned NOT NULL auto_increment,
   name varchar(255) NOT NULL default '',
-  description text default '',
+  description text,
   join_policy char(2) NOT NULL default '',
   login_method varchar(255) NOT NULL default 'INTERNAL',
   PRIMARY KEY  (id),
@@ -3716,9 +3716,9 @@ CREATE TABLE IF NOT EXISTS bskRECORDCOMMENT (
 CREATE TABLE IF NOT EXISTS msgMESSAGE (
   id int(15) unsigned NOT NULL auto_increment,
   id_user_from int(15) unsigned NOT NULL default '0',
-  sent_to_user_nicks text NOT NULL default '',
-  sent_to_group_names text NOT NULL default '',
-  subject text NOT NULL default '',
+  sent_to_user_nicks text NOT NULL,
+  sent_to_group_names text NOT NULL,
+  subject text NOT NULL,
   body text default NULL,
   sent_date datetime NOT NULL default '0000-00-00 00:00:00',
   received_date datetime NULL default '0000-00-00 00:00:00',
@@ -3742,7 +3742,7 @@ CREATE TABLE IF NOT EXISTS cmtRECORDCOMMENT (
   id_bibrec int(15) unsigned NOT NULL default '0',
   id_user int(15) unsigned NOT NULL default '0',
   title varchar(255) NOT NULL default '',
-  body text NOT NULL default '',
+  body text NOT NULL,
   date_creation datetime NOT NULL default '0000-00-00 00:00:00',
   star_score tinyint(5) unsigned NOT NULL default '0',
   nb_votes_yes int(10) NOT NULL default '0',
@@ -3793,7 +3793,7 @@ CREATE TABLE IF NOT EXISTS cmtCOLLAPSED (
 CREATE TABLE IF NOT EXISTS knwKB (
   id mediumint(8) unsigned NOT NULL auto_increment,
   name varchar(255) default '',
-  description text default '',
+  description text,
   kbtype char default NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY name (name)
@@ -3802,7 +3802,7 @@ CREATE TABLE IF NOT EXISTS knwKB (
 CREATE TABLE IF NOT EXISTS knwKBRVAL (
   id mediumint(8) unsigned NOT NULL auto_increment,
   m_key varchar(255) NOT NULL default '',
-  m_value text NOT NULL default '',
+  m_value text NOT NULL,
   id_knwKB mediumint(8) NOT NULL default '0',
   PRIMARY KEY  (id),
   KEY id_knwKB (id_knwKB),
@@ -3813,8 +3813,8 @@ CREATE TABLE IF NOT EXISTS knwKBRVAL (
 CREATE TABLE IF NOT EXISTS knwKBDDEF (
   id_knwKB mediumint(8) unsigned NOT NULL,
   id_collection mediumint(9),
-  output_tag text default '',
-  search_expression text default '',
+  output_tag text,
+  search_expression text,
   PRIMARY KEY  (id_knwKB)
 ) ENGINE=MyISAM;
 
@@ -3846,7 +3846,7 @@ CREATE TABLE IF NOT EXISTS sbmAPPROVAL (
   dLastReq datetime NOT NULL default '0000-00-00 00:00:00',
   dAction datetime NOT NULL default '0000-00-00 00:00:00',
   access varchar(20) NOT NULL default '0',
-  note text NOT NULL default '',
+  note text NOT NULL,
   PRIMARY KEY  (rn)
 ) ENGINE=MyISAM;
 
@@ -3992,7 +3992,7 @@ CREATE TABLE IF NOT EXISTS sbmIMPLEMENT (
 CREATE TABLE IF NOT EXISTS sbmPARAMETERS (
   doctype varchar(10) NOT NULL default '',
   name varchar(40) NOT NULL default '',
-  value text NOT NULL default '',
+  value text NOT NULL,
   PRIMARY KEY  (doctype,name)
 ) ENGINE=MyISAM;
 
@@ -4202,7 +4202,7 @@ CREATE TABLE IF NOT EXISTS hstRECORD (
   job_person varchar(255) NOT NULL,
   job_date datetime NOT NULL,
   job_details blob NOT NULL,
-  affected_fields text NOT NULL default '',
+  affected_fields text NOT NULL,
   KEY (id_bibrec),
   KEY (job_id),
   KEY (job_name),
