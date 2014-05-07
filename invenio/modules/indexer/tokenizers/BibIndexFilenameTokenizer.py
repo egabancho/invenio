@@ -16,7 +16,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Invenio; if not, write to the Free Software Foundation, Inc.,
 ## 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
-"""BibIndexFiletypeTokenizer: 'tokenizes' for file extensions.
+"""BibIndexFilenameTokenizer: 'tokenizes' finds file names.
    Tokenizer is adapted to work with bibfield and its get_record function.
 """
 
@@ -24,49 +24,46 @@
 from invenio.modules.indexer.tokenizers.BibIndexRecJsonTokenizer import BibIndexRecJsonTokenizer
 
 
-class BibIndexFiletypeTokenizer(BibIndexRecJsonTokenizer):
+class BibIndexFilenameTokenizer(BibIndexRecJsonTokenizer):
     """
-        Tokenizes for file extensions.
+        Tokenizes for file names.
         Tokenizer is adapted to work with bibfield and its get_record function.
 
         It accepts as an input a record created by a get_record function:
 
         from bibfield import get_record
         record16 = get_record(16)
-        tokenizer = BibIndexFiletypeTokenizer()
+        tokenizer = BibIndexFilenameTokenizer()
         new_words = tokenizer.tokenize(record16)
+
+        Example of new_words:
+        'thesis.ps.gz' -> ['thesis', 'thesis.ps', 'thesis.ps.gz']
     """
 
-    def __init__(self, stemming_language = None, remove_stopwords = False, remove_html_markup = False, remove_latex_markup = False):
+    def __init__(self, stemming_language = None,
+                       remove_stopwords = False,
+                       remove_html_markup = False,
+                       remove_latex_markup = False):
         pass
 
 
     def tokenize(self, record):
         """'record' is a recjson record from bibfield.
 
-           Function uses derived field 'filetypes'
+           Function uses derived field 'filenames'
            from the record.
 
            @param urls: recjson record
         """
         values = []
         try:
-            if record.has_key('filetypes'):
-                values = record['filetypes']
+            if 'filenames' in record:
+                values = record['filenames']
         except KeyError:
             pass
         except TypeError:
             return []
         return values
-
-    def tokenize_for_words(self, record):
-        return self.tokenize(record)
-
-    def tokenize_for_pairs(self, record):
-        return self.tokenize(record)
-
-    def tokenize_for_phrases(self, record):
-        return self.tokenize(record)
 
     def get_tokenizing_function(self, wordtable_type):
         return self.tokenize

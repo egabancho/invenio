@@ -19,6 +19,7 @@
 """BibIndexFulltextTokenizer: extracts words form a given document.
    Document is given by its URL.
 """
+from six import iteritems
 
 import os
 import sys
@@ -26,7 +27,6 @@ import logging
 import urllib2
 import re
 
-from six import iteritems
 
 from invenio.config import \
      CFG_SOLR_URL, \
@@ -39,7 +39,7 @@ from invenio.legacy.miscutil.solrutils_bibindex_indexer import solr_add_fulltext
 from invenio.legacy.miscutil.xapianutils_bibindex_indexer import xapian_add
 from invenio.legacy.bibdocfile.api import bibdocfile_url_p, \
      bibdocfile_url_to_bibdoc, download_url, \
-     BibRecDocs
+     BibRecDocs, InvenioBibDocFileError
 from invenio.legacy.bibindex.engine_utils import get_idx_indexer
 from invenio.legacy.bibsched.bibtask import write_message
 from invenio.ext.logging import register_exception
@@ -90,7 +90,11 @@ class BibIndexFulltextTokenizer(BibIndexDefaultTokenizer):
         try:
             if bibdocfile_url_p(url_direct_or_indirect):
                 write_message("... %s is an internal document" % url_direct_or_indirect, verbose=2)
-                bibdoc = bibdocfile_url_to_bibdoc(url_direct_or_indirect)
+                try:
+                    bibdoc = bibdocfile_url_to_bibdoc(url_direct_or_indirect)
+                except InvenioBibDocFileError:
+                    # Outdated 8564 tag
+                    return []
                 indexer = get_idx_indexer('fulltext')
                 if indexer != 'native':
                     # A document might belong to multiple records
@@ -99,7 +103,11 @@ class BibIndexFulltextTokenizer(BibIndexDefaultTokenizer):
                         # Adds fulltexts of all files once per records
                         if not recid in fulltext_added:
                             bibrecdocs = BibRecDocs(recid)
-                            text = bibrecdocs.get_text()
+                            try:
+                                text = bibrecdocs.get_text()
+                            except InvenioBibDocFileError:
+                                # Invalid PDF
+                                continue
                             if indexer == 'SOLR' and CFG_SOLR_URL:
                                 solr_add_fulltext(recid, text)
                             elif indexer == 'XAPIAN' and CFG_XAPIAN_ENABLED:
@@ -179,4 +187,11 @@ class BibIndexFulltextTokenizer(BibIndexDefaultTokenizer):
 
     def tokenize_for_words(self, phrase):
         return self.get_words_from_fulltext(phrase)
+
+
+    def tokenize_for_pairs(self, phrase):
+        return []
+
+    def tokenize_for_phrases(self, phrase):
+        return []
 

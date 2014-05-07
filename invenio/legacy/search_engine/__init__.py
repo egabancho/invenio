@@ -99,7 +99,8 @@ from invenio.legacy.bibrank.downloads_similarity import register_page_view_event
 from invenio.legacy.bibindex.engine_stemmer import stem
 from invenio.modules.indexer.tokenizers.BibIndexDefaultTokenizer import BibIndexDefaultTokenizer
 from invenio.modules.indexer.tokenizers.BibIndexCJKTokenizer import BibIndexCJKTokenizer, is_there_any_CJK_character_in_text
-from invenio.legacy.bibindex.engine_utils import author_name_requires_phrase_search
+from invenio.legacy.bibindex.engine_utils import author_name_requires_phrase_search, \
+    get_field_tags
 from invenio.legacy.bibindex.engine_washer import wash_index_term, lower_index_term, wash_author_name
 from invenio.legacy.bibindex.engine_config import CFG_BIBINDEX_SYNONYM_MATCH_TYPE
 from invenio.legacy.bibindex.adminlib import get_idx_indexer
@@ -2806,7 +2807,7 @@ def search_unit_in_xapian(p, f=None, m=None):
     return xapian_get_bitset(f, p)
 
 
-def search_unit_in_bibrec(datetext1, datetext2, type='c'):
+def search_unit_in_bibrec(datetext1, datetext2, search_type='c'):
     """
     Return hitset of recIDs found that were either created or modified
     (according to 'type' arg being 'c' or 'm') from datetext1 until datetext2, inclusive.
@@ -2814,10 +2815,10 @@ def search_unit_in_bibrec(datetext1, datetext2, type='c'):
     to intersect later on with the 'real' query.
     """
     set = intbitset()
-    if type and type.startswith("m"):
-        type = "modification_date"
+    if search_type and search_type.startswith("m"):
+        search_type = "modification_date"
     else:
-        type = "creation_date" # by default we are searching for creation dates
+        search_type = "creation_date" # by default we are searching for creation dates
 
     parts = datetext1.split('->')
     if len(parts) > 1 and datetext1 == datetext2:
@@ -2825,10 +2826,10 @@ def search_unit_in_bibrec(datetext1, datetext2, type='c'):
         datetext2 = parts[1]
 
     if datetext1 == datetext2:
-        res = run_sql("SELECT id FROM bibrec WHERE %s LIKE %%s" % (type,),
+        res = run_sql("SELECT id FROM bibrec WHERE %s LIKE %%s" % (search_type,),
                       (datetext1 + '%',))
     else:
-        res = run_sql("SELECT id FROM bibrec WHERE %s>=%%s AND %s<=%%s" % (type, type),
+        res = run_sql("SELECT id FROM bibrec WHERE %s>=%%s AND %s<=%%s" % (search_type, search_type),
                       (datetext1, datetext2))
     for row in res:
         set += row[0]
@@ -3626,18 +3627,6 @@ def get_field_name(code):
     else:
         return ""
 
-def get_field_tags(field):
-    """Returns a list of MARC tags for the field code 'field'.
-       Returns empty list in case of error.
-       Example: field='author', output=['100__%','700__%']."""
-    out = []
-    query = """SELECT t.value FROM tag AS t, field_tag AS ft, field AS f
-                WHERE f.code=%s AND ft.id_field=f.id AND t.id=ft.id_tag
-                ORDER BY ft.score DESC"""
-    res = run_sql(query, (field, ))
-    for val in res:
-        out.append(val[0])
-    return out
 
 def get_merged_recid(recID):
     """ Return the record ID of the record with
