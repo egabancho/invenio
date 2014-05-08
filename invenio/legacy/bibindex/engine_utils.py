@@ -25,6 +25,8 @@
 import re
 import sys
 
+from invenio.base.helpers import utf8ifier
+
 from invenio.legacy.dbquery import run_sql, \
     DatabaseError
 from invenio.legacy.bibsched.bibtask import write_message
@@ -315,7 +317,8 @@ def get_field_tags(field, tagtype="marc"):
         res = run_sql(query, (field,))
         values = []
         for row in res:
-            values.extend(row[0].split(","))
+            if row[0] is not None:
+                values.extend(row[0].split(","))
         return values
 
 
@@ -553,5 +556,5 @@ def get_values_recursively(subfield, phrases):
         for s in _get_values(subfield):
             get_values_recursively(s, phrases)
     elif subfield is not None:
-        phrases.append(str(subfield))
+        phrases.append(utf8ifier(subfield))
 
