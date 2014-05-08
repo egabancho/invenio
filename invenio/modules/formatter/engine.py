@@ -436,11 +436,11 @@ def format_record(recID, of, ln=CFG_SITE_LANG, verbose=0,
     #Create a BibFormat Object to pass that contain record and context
     bfo = BibFormatObject(recID, ln, search_pattern, xml_record, user_info, of)
 
-    if of.lower() != 'xm' and \
-           (not bfo.get_record() or len(bfo.get_record()) <= 1):
-        # Record only has recid: do not format, excepted
-        # for xm format
-        return ""
+    # if of.lower() != 'xm' and \
+    #        (not bfo.get_record() or len(bfo.get_record()) <= 1):
+    #     # Record only has recid: do not format, excepted
+    #     # for xm format
+    #     return ""
 
     #Find out which format template to use based on record and output format.
     template = decide_format_template(bfo, of)
@@ -509,22 +509,22 @@ def decide_format_template(bfo, of):
 
     output_format = get_output_format(of)
 
-    for rule in output_format['rules']:
-        if rule['field'].startswith('00'):
-            # Rule uses controlfield
-            values = [bfo.control_field(rule['field']).strip()] #Remove spaces
-        else:
-            # Rule uses datafield
-            values = bfo.fields(rule['field'])
-        # loop over multiple occurences, but take the first match
-        if len(values) > 0:
-            for value in values:
-                value = value.strip() #Remove spaces
-                pattern = rule['value'].strip() #Remove spaces
-                match_obj = re.match(pattern, value, re.IGNORECASE)
-                if match_obj is not None and \
-                       match_obj.end() == len(value):
-                    return rule['template']
+    # for rule in output_format['rules']:
+    #     if rule['field'].startswith('00'):
+    #         # Rule uses controlfield
+    #         values = [bfo.control_field(rule['field']).strip()] #Remove spaces
+    #     else:
+    #         # Rule uses datafield
+    #         values = bfo.fields(rule['field'])
+    #     # loop over multiple occurences, but take the first match
+    #     if len(values) > 0:
+    #         for value in values:
+    #             value = value.strip() #Remove spaces
+    #             pattern = rule['value'].strip() #Remove spaces
+    #             match_obj = re.match(pattern, value, re.IGNORECASE)
+    #             if match_obj is not None and \
+    #                    match_obj.end() == len(value):
+    #                 return rule['template']
     template = output_format['default']
     if template != '':
         return template
