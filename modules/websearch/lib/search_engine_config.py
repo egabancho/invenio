@@ -46,6 +46,12 @@ CFG_WEBSEARCH_IDXPAIRS_EXACT_SEARCH = False
 ## "See more collections" link.
 CFG_WEBSEARCH_RESULTS_OVERVIEW_MAX_COLLS_TO_PRINT = 10
 
+# CFG_WEBSEARCH_ENABLED_SEARCH_INTERFACES -- all the enabled search interfaces
+# 'simple':0, 'advanced': 1, 'add-to-seach': 2
+# FIXME: see alternative two in #1738#issuecomment-52845610
+CFG_WEBSEARCH_ENABLED_SEARCH_INTERFACES = [0,1,2]
+
+
 class InvenioWebSearchUnknownCollectionError(Exception):
     """Exception for bad collection."""
     def __init__(self, colname):
