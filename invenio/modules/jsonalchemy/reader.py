@@ -383,6 +383,7 @@ class Reader(object):  # pylint: disable=R0921
 
     def _set_default_value(self, json_id, field_name):
         """Finds the default value inside the schema, if any"""
+        #FIXME check how to update default values for items in a list!
         def set_default_value(field, schema):
             """Helper function to allow subfield default values"""
             if 'default' in schema:
@@ -412,7 +413,7 @@ class Reader(object):  # pylint: disable=R0921
                                        exclude=['decorators', 'extensions'])
                 try:
                     self._json._dict_bson[field_name].update(old_value)
-                except AttributeError:
+                except (AttributeError, ValueError):
                     self._json.__setitem__(field_name, old_value, extend=False,
                                            exclude=['decorators', 'extensions'])
 
