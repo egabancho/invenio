@@ -53,6 +53,9 @@ def run(name, input_file, master_format='marc', reader_info={}, **kwargs):
         example char encoding or special characters.
     :type reader_info: dict
     :param kwargs:
+        * pretend
+        * force
+        * validation_mode
     """
     signals.uploader_started.send(mode=name,
                                   blob=input_file,

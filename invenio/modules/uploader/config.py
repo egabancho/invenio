@@ -20,7 +20,22 @@
 UPLOADER_WORKFLOWS = {
     'insert': 'invenio.modules.uploader.workflows.insert:insert'
 }
+"""List of available uploader workflows."""
 
 UPLOADER_VALIDATION_MODE = 'strict'
+"""Validation policy.
+
+* `strict` means that the validation must succeed to perform the upload
+
+* `permisive` the upload process will continue even if any validation error or
+warning is present.
+
+This parameter could be override for a particular upload using setting
+`validation_mode` to the desired mode.
+"""
 
 UPLOADER_NUMBER_RECORD_PER_WORKER = 10
+"""Number of records to be treated together in one workflow loop.
+
+The bigger this number is the smaller the number of parallel tasks.
+"""
