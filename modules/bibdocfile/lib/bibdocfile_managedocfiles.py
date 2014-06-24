@@ -109,6 +109,7 @@ def create_file_upload_interface(recid,
                                  ln=CFG_SITE_LANG,
                                  minsize='', maxsize='',
                                  doctypes_and_desc=None,
+                                 split_doctypes=False,
                                  can_delete_doctypes=None,
                                  can_revise_doctypes=None,
                                  can_describe_doctypes=None,
@@ -182,6 +183,11 @@ def create_file_upload_interface(recid,
                               Eg:
                               [('main', 'Main document'), ('additional', 'Figure, schema. etc')]
     @type doctypes_and_desc: list(tuple(string, string))
+
+
+    @param split_doctypes: display all files together or divided in different
+                           columns depending on their doctype
+    @param split_doctypes: boolean
 
     @param restrictions_and_desc: the list of restrictions (like 'Restricted' or
                          'No Restriction') and their description that
@@ -486,8 +492,8 @@ def create_file_upload_interface(recid,
     # here, or else load parameters
     try:
         parameters = _read_file_revision_interface_configuration_from_disk(working_dir)
-        (minsize, maxsize, doctypes_and_desc, doctypes,
-         can_delete_doctypes, can_revise_doctypes,
+        (minsize, maxsize, doctypes_and_desc, split_doctypes,
+         doctypes, can_delete_doctypes, can_revise_doctypes,
          can_describe_doctypes,
          can_comment_doctypes, can_keep_doctypes,
          can_rename_doctypes,
@@ -503,8 +509,8 @@ def create_file_upload_interface(recid,
     except:
         # Initial display of the interface: save configuration to
         # disk for later reuse
-        parameters = (minsize, maxsize, doctypes_and_desc, doctypes,
-                      can_delete_doctypes, can_revise_doctypes,
+        parameters = (minsize, maxsize, doctypes_and_desc, split_doctypes,
+                      doctypes, can_delete_doctypes, can_revise_doctypes,
                       can_describe_doctypes,
                       can_comment_doctypes, can_keep_doctypes,
                       can_rename_doctypes,
@@ -842,27 +848,52 @@ def create_file_upload_interface(recid,
         restrictions_list = '<select style="display:none" id="fileRestriction" name="fileRestriction"></select>'
 
     # List the files
-    body += '''
-<div id="reviseControl">
-    <table class="reviseControlBrowser">'''
-    i = 0
-    for bibdoc in abstract_bibdocs:
-        if bibdoc['list_latest_files']:
-            i += 1
-            body += create_file_row(bibdoc, can_delete_doctypes,
-                                    can_rename_doctypes,
-                                    can_revise_doctypes,
-                                    can_describe_doctypes,
-                                    can_comment_doctypes,
-                                    can_keep_doctypes,
-                                    can_add_format_to_doctypes,
-                                    doctypes_list,
-                                    show_links,
-                                    can_restrict_doctypes,
-                                    even=not (i % 2),
-                                    ln=ln,
-                                    form_url_params=form_url_params,
-                                    protect_hidden_files=protect_hidden_files)
+    body += '<div id="reviseControl">'
+    if split_doctypes:
+        body += '<table id="reviseControlTables" style="width: 100%%">'
+        for (doctype, desc) in doctypes_and_desc:
+            body += '<tr><td><table id="doctype_%s" class="reviseControlBrowser" style="width: 100%%">' % (doctype, )
+            body += '<thead><tr><th colspan="2">%s</th></tr></thead>' % (desc, )
+            i = 0
+            for bibdoc in abstract_bibdocs:
+                if bibdoc['list_latest_files'] and bibdoc['get_type'] == doctype:
+                    i += 1
+                    body += create_file_row(bibdoc, can_delete_doctypes,
+                                            can_rename_doctypes,
+                                            can_revise_doctypes,
+                                            can_describe_doctypes,
+                                            can_comment_doctypes,
+                                            can_keep_doctypes,
+                                            can_add_format_to_doctypes,
+                                            doctypes_list,
+                                            show_links,
+                                            can_restrict_doctypes,
+                                            even=not (i % 2),
+                                            ln=ln,
+                                            form_url_params=form_url_params,
+                                            protect_hidden_files=protect_hidden_files)
+            body += '</table><br></td>'
+
+    else:
+        body += '<table class="reviseControlBrowser">'
+        i = 0
+        for bibdoc in abstract_bibdocs:
+            if bibdoc['list_latest_files']:
+                i += 1
+                body += create_file_row(bibdoc, can_delete_doctypes,
+                                        can_rename_doctypes,
+                                        can_revise_doctypes,
+                                        can_describe_doctypes,
+                                        can_comment_doctypes,
+                                        can_keep_doctypes,
+                                        can_add_format_to_doctypes,
+                                        doctypes_list,
+                                        show_links,
+                                        can_restrict_doctypes,
+                                        even=not (i % 2),
+                                        ln=ln,
+                                        form_url_params=form_url_params,
+                                        protect_hidden_files=protect_hidden_files)
     body += '</table>'
     if len(cleaned_doctypes) > 0:
         (revise_panel, javascript_prefix) = javascript_display_revise_panel(action='add', target='', show_doctypes=True, show_keep_previous_versions=False, show_rename=can_name_new_files, show_description=True, show_comment=True, bibdocname='', description='', comment='', show_restrictions=True, restriction=len(restrictions_and_desc) > 0 and restrictions_and_desc[0][0] or '', doctypes=doctypes_list)
@@ -1953,7 +1984,7 @@ def move_uploaded_files_to_storage(working_dir, recid, icon_sizes,
     # file that have just been added.
     parameters = _read_file_revision_interface_configuration_from_disk(working_dir)
     new_names = []
-    doctypes_to_default_filename = parameters[22]
+    doctypes_to_default_filename = parameters[23]
     for bibdoc_to_rename in newly_added_bibdocs:
         bibdoc_to_rename_doctype = bibdoc_to_rename.doctype
         rename_to = doctypes_to_default_filename.get(bibdoc_to_rename_doctype, '')
