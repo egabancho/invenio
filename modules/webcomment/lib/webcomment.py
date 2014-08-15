@@ -89,7 +89,8 @@ try:
 except:
     pass
 
-def perform_request_display_comments_or_remarks(req, recID, display_order='od', display_since='all', nb_per_page=100, page=1, ln=CFG_SITE_LANG, voted=-1, reported=-1, subscribed=0, reviews=0, uid=-1, can_send_comments=False, can_attach_files=False, user_is_subscribed_to_discussion=False, user_can_unsubscribe_from_discussion=False, display_comment_rounds=None):
+
+def perform_request_display_comments_or_remarks(req, recID, display_order='od', display_since='all', nb_per_page=100, page=1, ln=CFG_SITE_LANG, voted=-1, reported=-1, subscribed=0, reviews=0, uid=-1, can_send_comments=False, can_attach_files=False, user_is_subscribed_to_discussion=False, user_can_unsubscribe_from_discussion=False, display_comment_rounds=None, filter_for_results=None):
     """
     Returns all the comments (reviews) of a specific internal record or external basket record.
     @param recID:  record id where (internal record IDs > 0) or (external basket record IDs < -100)
@@ -329,7 +330,8 @@ def perform_request_display_comments_or_remarks(req, recID, display_order='od', 
                                                   user_is_subscribed_to_discussion,
                                                   user_can_unsubscribe_from_discussion=\
                                                   user_can_unsubscribe_from_discussion,
-                                                  display_comment_rounds=display_comment_rounds)
+                                                  display_comment_rounds=display_comment_rounds,
+                                                  filter_for_results=filter_for_results)
     return body
 
 def perform_request_vote(cmt_id, client_ip_address, value, uid=-1):

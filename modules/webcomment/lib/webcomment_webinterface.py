@@ -140,7 +140,8 @@ class WebInterfaceCommentsPages(WebInterfaceDirectory):
                                    'voted': (int, -1),
                                    'reported': (int, -1),
                                    'subscribed': (int, 0),
-                                   'cmtgrp': (list, ["latest"]) # 'latest' is now a reserved group/round name
+                                   'cmtgrp': (list, ["latest"]), # 'latest' is now a reserved group/round name
+                                   'filter' : (str, '')
                                    })
 
         _ = gettext_set_language(argd['ln'])
@@ -232,7 +233,8 @@ class WebInterfaceCommentsPages(WebInterfaceDirectory):
                 can_attach_files=can_attach_files,
                 user_is_subscribed_to_discussion=user_is_subscribed_to_discussion,
                 user_can_unsubscribe_from_discussion=user_can_unsubscribe_from_discussion,
-                display_comment_rounds=display_comment_rounds
+                display_comment_rounds=display_comment_rounds,
+                filter_for_results=argd['filter']
                 )
 
             title, description, keywords = websearch_templates.tmpl_record_page_header_content(req, self.recid, argd['ln'])

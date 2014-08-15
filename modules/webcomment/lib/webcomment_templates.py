@@ -619,7 +619,8 @@ class Template:
                           can_attach_files=False,
                           user_is_subscribed_to_discussion=False,
                           user_can_unsubscribe_from_discussion=False,
-                          display_comment_rounds=None):
+                          display_comment_rounds=None,
+                          filter_for_results=None):
         """
         Get table of all comments
         @param recID: record id
@@ -960,6 +961,8 @@ class Template:
         # do NOT remove the HTML comments below. Used for parsing
         body = '''
 %(comments_and_review_tabs)s
+%(filtering_script)s
+<br />
 <!-- start comments table -->
 <div class="webcomment_comment_table">
   %(comments_rows)s
@@ -984,9 +987,13 @@ class Template:
             'ranking_avg'               : ranking_average,
             'comments_and_review_tabs'  : CFG_WEBCOMMENT_ALLOW_REVIEWS and \
                                        CFG_WEBCOMMENT_ALLOW_COMMENTS and \
-                                       '%s | %s <br />' % \
+                                       '%s | %s' % \
                                        (comments_link, reviews_link) or '',
-            'review_or_comment_first'   : review_or_comment_first
+            'review_or_comment_first'   : review_or_comment_first,
+            'filtering_script'          : self.tmpl_comment_filtering_box_and_script(more_exist_p= nb_pages>1,
+                                                                                     filter_query=filter_for_results,
+                                                                                     total_nb=nb_pages*nb_per_page,
+                                                                                     recID=recID)
         }
 
         # form is not currently used. reserved for an eventual purpose
@@ -2852,3 +2859,100 @@ class Template:
             body = cgi.escape(body)
 
         return body
+
+    def tmpl_comment_filtering_box_and_script(self, more_exist_p, filter_query='', total_nb=100, recID=None ,ln=CFG_SITE_LANG):
+        """
+        """
+
+        # load the right message language
+        _ = gettext_set_language(ln)
+
+        filter_all_comments_url = '/record/%(recID)s/comments/display?ln=%(ln)s&nb=%(nb)s&filter=' \
+                % {
+                    'recID'        : recID,
+                    'ln'           : ln,
+                    'nb'           : total_nb
+                  }
+
+
+        filter_element = """
+        <div id="filter_area" style="float:right">
+        <label style="margin-right:15px;">%(filter_label)s</label>
+        <input id="filter_input" placeholder="%(filter_placeholder)s" style="margin-left: auto; width: 300px; height: 20px; font-size: 120%%;" />
+        <br /><label id="matching_comments_number"></label>
+        </div>
+        <style>
+        .highlight { background-color: yellow; }
+        </style>
+        <script type="text/javascript">
+
+        /* debounce http://benalman.com/projects/jquery-throttle-debounce-plugin/ */
+        (function(b,c){var $=b.jQuery||b.Cowboy||(b.Cowboy={}),a;$.throttle=a=function(e,f,j,i){var h,d=0;if(typeof f!=="boolean"){i=j;j=f;f=c}function g(){var o=this,m=+new Date()-d,n=arguments;function l(){d=+new Date();j.apply(o,n)}function k(){h=c}if(i&&!h){l()}h&&clearTimeout(h);if(i===c&&m>e){l()}else{if(f!==true){h=setTimeout(i?k:l,i===c?e-m:e)}}}if($.guid){g.guid=j.guid=j.guid||$.guid++}return g};$.debounce=function(d,e,f){return f===c?a(d,e,false):a(d,f,e!==false)}})(this);
+
+        /* highlighting http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html */
+        jQuery.fn.highlight=function(c){function e(b,c){var d=0;if(3==b.nodeType){var a=b.data.toUpperCase().indexOf(c);if(0<=a){d=document.createElement("span");d.className="highlight";a=b.splitText(a);a.splitText(c.length);var f=a.cloneNode(!0);d.appendChild(f);a.parentNode.replaceChild(d,a);d=1}}else if(1==b.nodeType&&b.childNodes&&!/(script|style)/i.test(b.tagName))for(a=0;a<b.childNodes.length;++a)a+=e(b.childNodes[a],c);return d}return this.length&&c&&c.length?this.each(function(){e(this,c.toUpperCase())}): this};jQuery.fn.removeHighlight=function(){return this.find("span.highlight").each(function(){this.parentNode.firstChild.nodeName;with(this.parentNode)replaceChild(this.firstChild,this),normalize()}).end()};
+
+        var filter_all_url = "%(filter_all_comments_url)s";
+        $( "#filter_input" ).keyup($.debounce( 250, function() {
+          comments = $(".collapsible_content").children().not(".webcomment_comment_options")
+          query = $("#filter_input").val().toLowerCase()
+          $("#all_comments_anchor").attr("href",filter_all_url+query)
+          comments.removeHighlight()
+          $("#search_next_page").remove()
+          if (query == "")
+          {
+            comments.parent().parent().parent().show(300)
+            $("#matching_comments_number").hide(300)
+            return;
+          }
+
+          comment_count = 0
+          for (i in comments)
+          {
+            if ( !$.isEmptyObject(comments[i].textContent))
+            {
+                if ( comments[i].textContent.toLowerCase().indexOf(query) == -1)
+                {
+                    $(comments[i]).parent().parent().parent().hide(300);
+                }
+                else
+                {
+                    comment_count++
+                    $(comments[i]).highlight(query).parent().parent().parent().show(300);
+                }
+            }
+          }
+          $("#matching_comments_number").text("Matching comments: "+comment_count)
+          $("#matching_comments_number").show(300)
+
+          if (%(has_more_pages)s)
+          {
+
+            $("#cmtRound").append("<div id='search_next_page' style='text-align:center'><a id='search_all_authors_anchor' align='center' style='font-size:18px;margin-left:auto;margin-right:auto;' href='"+filter_all_url+query+"'>Click here to search the comments of the next page<a></div>")
+          }
+
+          }));
+          $(function() {
+             if (%(has_more_pages)s)
+             {
+                $("#filter_area").append("<br /><a id='all_comments_anchor' style='font-size:13px' href='%(filter_all_comments_url)s%(filter_query)s'>Use this filter for all record's comments</a>")
+             }
+
+             if ("%(filter_query)s")
+             {
+                $("#filter_input").val("%(filter_query)s")
+                $("#filter_input").trigger( "keyup" )
+             }
+            });
+        </script>
+        <div style="clear:both"></div>
+
+
+       """ % { 'has_more_pages'          : more_exist_p and "true" or "false",
+               'filter_placeholder'      : _('filter comments in this page'),
+               'filter_label'            : _('Filter') + ':&nbsp;',
+               'filter_query'            : filter_query,
+               'filter_all_comments_url' : filter_all_comments_url
+               }
+
+        return filter_element
