@@ -43,6 +43,8 @@ from invenio.webcomment import check_recID_is_in_range, \
                                is_comment_deleted, \
                                perform_display_your_comments
 
+from invenio.webcomment_dblayer import get_cmtrecordcomment_to_bibdocfile_association
+
 from invenio.config import \
      CFG_TMPSHAREDDIR, \
      CFG_SITE_LANG, \
@@ -94,12 +96,32 @@ class WebInterfaceCommentsPages(WebInterfaceDirectory):
     """Defines the set of /comments pages."""
 
     _exports = ['', 'display', 'add', 'vote', 'report', 'index', 'attachments',
-                'subscribe', 'unsubscribe', 'toggle']
+                'subscribe', 'unsubscribe', 'toggle', 'associated_files']
 
     def __init__(self, recid=-1, reviews=0):
         self.recid = recid
         self.discussion = reviews # 0:comments, 1:reviews
         self.attachments = WebInterfaceCommentsFiles(recid, reviews)
+
+    def associated_files(self, req, form):
+        """
+        Queries dblayer for all the files of the
+        record that have associated comments with them
+        """
+        argd = wash_urlargd(form, {
+                                    'recid': (int, -1)
+                                  })
+
+        _ = gettext_set_language(argd['ln'])
+        uid = getUid(req)
+
+        user_info = collect_user_info(req)
+        (auth_code, auth_msg) = check_user_can_view_comments(user_info, self.recid)
+        if auth_code:
+            return page_not_authorized(req, "../", \
+                                        text = auth_msg)
+
+        return get_cmtrecordcomment_to_bibdocfile_association(argd['recid'])
 
     def index(self, req, form):
         """
@@ -306,7 +328,8 @@ class WebInterfaceCommentsPages(WebInterfaceDirectory):
                                    'comid': (int, 0),
                                    'editor_type': (str, ""),
                                    'subscribe': (str, ""),
-                                   'cookie': (str, "")
+                                   'cookie': (str, ""),
+                                   'associated_file': (str, "")
                                    })
         _ = gettext_set_language(argd['ln'])
 
@@ -503,7 +526,8 @@ class WebInterfaceCommentsPages(WebInterfaceDirectory):
                                                          subscribe=subscribe,
                                                          req=req,
                                                          attached_files=added_files,
-                                                         warnings=warning_msgs)
+                                                         warnings=warning_msgs,
+                                                         associated_file=argd['associated_file'])
 
             if self.discussion:
                 title = _("Add Review")
