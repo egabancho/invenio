@@ -1090,7 +1090,7 @@ class BibIndexIndexingAffectedIndexes(InvenioTestCase):
                 wordTable.add_recIDs([self.records], 10000)
             vit = VirtualIndexTable('global',
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-            vit.run_update()
+            vit.run_update(10000)
             self.started = True
 
     @classmethod
@@ -1106,7 +1106,7 @@ class BibIndexIndexingAffectedIndexes(InvenioTestCase):
                 wordTable.del_recIDs([self.records])
             vit = VirtualIndexTable('global',
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-            vit.run_update()
+            vit.run_update(10000)
 
 
     def test_proper_content_in_title_index(self):
@@ -1372,10 +1372,10 @@ class BibIndexVirtualIndexAlsoChangesTest(InvenioTestCase):
             wordTable.add_recIDs([[1, 10]], 1000)
         vit = VirtualIndexTable(self.new_index_name,
                                 CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-        vit.run_update()
+        vit.run_update(10000)
         vit = VirtualIndexTable('global',
                                 CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-        vit.run_update()
+        vit.run_update(10000)
 
     @classmethod
     def reindex_virtual_index(self, special_tokenizer=False):
@@ -1392,10 +1392,10 @@ class BibIndexVirtualIndexAlsoChangesTest(InvenioTestCase):
             wordTable.add_recIDs([[1, 10]], 1000)
         vit = VirtualIndexTable(self.new_index_name,
                                 CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-        vit.run_update()
+        vit.run_update(10000)
         vit = VirtualIndexTable('global',
                                 CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-        vit.run_update()
+        vit.run_update(10000)
 
 
     @classmethod
@@ -1461,7 +1461,7 @@ class BibIndexVirtualIndexRemovalTest(InvenioTestCase):
                 wordTable.add_recIDs([[1, 113]], 1000)
             vit = VirtualIndexTable(self.new_index_name,
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-            vit.run_update()
+            vit.run_update(10000)
             #removal part
             vit.remove_dependent_index("authorcount")
 
@@ -1587,14 +1587,14 @@ class BibIndexCommonWordsInVirtualIndexTest(InvenioTestCase):
             wordTable.add_recIDs([[1, 9]], 1000)
             vit = VirtualIndexTable('global',
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-            vit.run_update()
+            vit.run_update(10000)
             wordTable = WordTable(index_name=self.index_name,
                                   table_type=CFG_BIBINDEX_INDEX_TABLE_TYPE["Pairs"],
                                   wash_index_terms=50)
             wordTable.add_recIDs([[6, 9]], 1000)
             vit = VirtualIndexTable('global',
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Pairs"])
-            vit.run_update()
+            vit.run_update(10000)
 
     def tearDown(self):
         if self.counter == 8:
@@ -1610,14 +1610,14 @@ class BibIndexCommonWordsInVirtualIndexTest(InvenioTestCase):
             wordTable.add_recIDs([[1, 9]], 1000)
             vit = VirtualIndexTable('global',
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Words"])
-            vit.run_update()
+            vit.run_update(10000)
             wordTable = WordTable(index_name=self.index_name,
                                   table_type=CFG_BIBINDEX_INDEX_TABLE_TYPE["Pairs"],
                                   wash_index_terms=50)
             wordTable.add_recIDs([[6, 9]], 1000)
             vit = VirtualIndexTable('global',
                                     CFG_BIBINDEX_INDEX_TABLE_TYPE["Pairs"])
-            vit.run_update()
+            vit.run_update(10000)
 
     def test_1_initial_state_of_record_1(self):
         """bibindex - checks if record 1 has proper initial state for word: experiment"""
@@ -1710,7 +1710,7 @@ class BibIndexVirtualIndexQueueTableTest(InvenioTestCase):
     def run_update_for_virtual_index(self, table_type):
         """triggers an update in virtual 'global' index"""
         vit = VirtualIndexTable('global', table_type)
-        vit.run_update()
+        vit.run_update(10000)
 
     def test_1_correct_entry_in_queue_for_word_table(self):
         """bibindex - checks correct entry in queue table for words"""

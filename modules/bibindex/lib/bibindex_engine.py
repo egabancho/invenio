@@ -819,7 +819,7 @@ class VirtualIndexTable(AbstractIndexTable):
         """
         self.mode = "reindex"
 
-    def run_update(self, flush=10000):
+    def run_update(self, flush):
         """
             Function starts all updating processes for virtual index.
             It will take all information about pending changes from database
@@ -2089,7 +2089,7 @@ def update_virtual_indexes(virtual_indexes, reindex=False):
                 kwargs.update({'wash_index_terms': CFG_BIBINDEX_WASH_INDEX_TERMS[key]})
                 vit = VirtualIndexTable(index_name, type_, **kwargs)
                 vit.set_reindex_mode()
-                vit.run_update()
+                vit.run_update(task_get_option('flush', 10000))
 
             swap_temporary_reindex_tables(index_id)
             update_index_last_updated([index_name], task_get_task_param('task_starting_time'))
@@ -2098,7 +2098,7 @@ def update_virtual_indexes(virtual_indexes, reindex=False):
             for key, type_ in CFG_BIBINDEX_INDEX_TABLE_TYPE.iteritems():
                 kwargs.update({'wash_index_terms': CFG_BIBINDEX_WASH_INDEX_TERMS[key]})
                 vit = VirtualIndexTable(index_name, type_, **kwargs)
-                vit.run_update()
+                vit.run_update(task_get_option('flush', 10000))
 
             task_sleep_now_if_required(can_stop_too=True)
 
