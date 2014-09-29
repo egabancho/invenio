@@ -118,8 +118,7 @@ def retrieve_record_id_from_pids(step):
                 step, msg="An 'persistent_identifiers' method is needed")
 
         for pid_name, pid_values in record.persistent_identifiers:
-            eng.log.info("Found PID '%s' with value '%s', trying to match it",
-                         (pid_name, pid_values))
+            eng.log.info("Found PID '%s' trying to match it", (pid_name, ))
             matching_recids = set()
             for possible_pid in pid_values:
                 eng.log.info("Looking for PID %s", (possible_pid, ))
@@ -127,7 +126,7 @@ def retrieve_record_id_from_pids(step):
                     possible_pid.get('type'), possible_pid.get('value'),
                     possible_pid.get('provider'))
                 if pid:
-                    eng.log.inf("PID found in the data base %s",
+                    eng.log.info("PID found in the data base %s",
                                 (pid.object_value, ))
                     matching_recids.add(pid.object_value)
             if len(matching_recids) > 1:
@@ -208,6 +207,8 @@ def update_pidstore(step):
             raise UploaderWorkflowException(
                 step, msg="An 'persistent_identifiers' method is needed")
 
+        eng.log.info("Found PIDs '%s'", (record.persistent_identifiers, ))
+
         for pid_name, pid_values in record.persistent_identifiers:
             eng.log.info("Found PID '%s'", (pid_name, ))
             for pid_value in pid_values:
@@ -218,7 +219,7 @@ def update_pidstore(step):
                     pid = PersistentIdentifier.create(
                         pid_value.get('type'), pid_value.get('value'),
                         pid_value.get('provider'))
-                if not pid.has_object('rec', recod['recid']):
+                if not pid.has_object('rec', record['recid']):
                     pid.assign('rec', record['recid'])
         eng.log.info('Finish looking for PIDs inside the current record and '
                      'register them in the DB')

@@ -79,7 +79,8 @@ def run_workflow(records, name, **kwargs):
     wfe.setVar('options', kwargs)
     wfe.process(records)
     _run_pre_post_tasks(workflow['post_tasks'])
-    signals.uploader_finished.send(name=name, result=records, **kwargs)
+    signals.uploader_finished.send(uploader_workflow=name,
+                                   result=records, **kwargs)
     return records
 
 
