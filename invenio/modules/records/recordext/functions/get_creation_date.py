@@ -30,4 +30,4 @@ def get_creation_date(recid):
     try:
         return Bibrec.query.get(recid).creation_date
     except AttributeError:
-        return None
+        raise Exception('Record not found on the system')
