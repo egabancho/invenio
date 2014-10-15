@@ -141,7 +141,9 @@ class Record(SmartJson):
                         tmp.extend(self._massage_pid_value((tuple_[0], item)))
                     return tmp
                 else:
-                    return [{tuple_[0]:tuple_[1], 'type':'', 'provider':''}]
+                    return [{'value': tuple_[1],
+                             'type': tuple_[0],
+                             'provider':'invenio'}]
 
         pids = PIDList()
         for key, value in self.items(without_meta_metadata=True):
