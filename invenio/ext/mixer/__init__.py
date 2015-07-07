@@ -198,7 +198,7 @@ def blend_all(sender, yes_i_know=False, drop=True, **kwargs):
     list(models)
 
     for table in db.metadata.sorted_tables:
-        if table.name in mixers:
+        if table.name in dict(mixers):
             result = mixer.blend(mixers[table.name], drop)
             db.session.add_all(result)
             db.session.commit()
@@ -212,7 +212,7 @@ def unblend_all(sender, **kwargs):
     list(models)
 
     for table in db.metadata.sorted_tables:
-        if table.name in mixers:
+        if table.name in dict(mixers):
             mixer.unblend(mixers[table.name])
 
 
