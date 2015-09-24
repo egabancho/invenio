@@ -145,7 +145,8 @@ class SQLAlchemy(FlaskSQLAlchemy):
                                 'extend_existing': False,
                                 'mysql_engine': 'InnoDB',
                                 'mysql_charset': 'utf8',
-                                'sql_mode': 'ansi_quotes'}
+                                'sql_mode': 'ansi_quotes',
+                                }
 
             original_table = self.Table
 

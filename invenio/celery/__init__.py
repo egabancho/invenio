@@ -130,7 +130,10 @@ class InvenioLoader(BaseLoader):
 
     def close_database(self, **dummy_kwargs):
         if self.db:
+            from flask import has_app_context
             self.db.session.remove()
+            if has_app_context():
+                self.db.engine.dispose()
 
     def import_default_modules(self):
         """ Called before on_worker_init """

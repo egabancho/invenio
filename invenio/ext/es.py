@@ -212,19 +212,6 @@ SEARCH_RECORD_MAPPING = {
 
 
 @celery.task
-def index_record(recid):
-    """Index a record in elasticsearch."""
-    from invenio_records.models import RecordMetadata
-    record = RecordMetadata.query.get(recid)
-    es.index(
-        index='records',
-        doc_type='record',
-        body=record.json,
-        id=record.id
-    )
-
-
-@celery.task
 def index_collection_percolator(name, dbquery):
     """Create an elasticsearch percolator for a given query."""
     from invenio_search.api import Query
@@ -253,8 +240,6 @@ def setup_app(app):
     from invenio_base import signals
     from invenio_base.scripts.database import recreate, drop, create
 
-    from invenio_records.models import RecordMetadata
-
     from sqlalchemy.event import listens_for
 
     global es
@@ -268,11 +253,6 @@ def setup_app(app):
     signals.pre_command.connect(create_index, sender=create)
     signals.pre_command.connect(delete_index, sender=recreate)
     signals.pre_command.connect(create_index, sender=recreate)
-
-    @listens_for(RecordMetadata, 'after_insert')
-    @listens_for(RecordMetadata, 'after_update')
-    def new_record(mapper, connection, target):
-        index_record.delay(target.id)
 
     # FIXME add after_delete
 
