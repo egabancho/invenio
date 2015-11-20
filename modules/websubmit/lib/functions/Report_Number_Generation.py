@@ -26,6 +26,7 @@ import time
 import fcntl
 import errno
 
+from invenio.search_engine import get_creation_date
 from invenio.config import CFG_WEBSUBMIT_COUNTERSDIR
 from invenio.websubmit_config import InvenioWebSubmitFunctionError
 from invenio.shellutils import mymkdir
@@ -95,6 +96,12 @@ def Report_Number_Generation(parameters, curdir, form, user_info=None):
         if parameters['yeargen'] == "AUTO":
             # Current year is used
             yy = time.strftime("%Y")
+        elif parameters['yeargen'] == 'CREATION':
+            # Creation date of the record (only if the record exits)
+            fp = open("%s/%s" % (curdir, 'SN'), "r")
+            recid = fp.read()
+            fp.close()
+            yy = get_creation_date(recid, '%Y')
         else :
             # If yeargen != auto then the contents of the file named 'yeargen' is used
             # Assumes file uses DD-MM-YYYY format
