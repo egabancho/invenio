@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 CERN.
+# Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ from invenio.search_engine import get_fieldvalues
 CFG_BIBAUTHORITY_PUBLICATION_VIEW_LIMIT = 10
 __revision__ = "$Id$"
 
-def format_element(bfo):
+def format_element(bfo, print_title="yes"):
     """ Prints the control number of an author authority record in HTML.
     By default prints brief version.
 
@@ -85,10 +85,9 @@ def format_element(bfo):
                 prefix = prefix_pattern % url_str
                 publications_formatted.append(prefix + title[0] + postfix)
 
-    title = "<strong>" + _("Publication(s)") + "</strong>"
-    content = ""
+    result = ""
     if publications_formatted:
-        content = "<ul><li>" + "</li><li> ".join(publications_formatted) + "</li></ul>"
+        result = "<ol><li>" + "</li><li> ".join(publications_formatted) + "</li></ol>"
     #else:
     #    content = "<strong style='color:red'>Missing !</strong>"
 
@@ -103,11 +102,14 @@ def format_element(bfo):
     "&sc=1" + \
     "&ln=" + bfo.lang
     prefix = prefix_pattern % url_str
-    if content:
-        content += prefix + "See all " + str(count) + " publications..." + postfix
-        return "<p>" + title + ": " + content + "</p>"
-    else:
-        return ""
+    if result:
+        result += prefix + "See all " + str(count) + " publications" + postfix
+
+        if print_title.lower() == "yes":
+            title = "<strong>" + _("Publication(s)") + "</strong>"
+            result = title + ": " + result
+
+    return result
 
 
 def escape_values(bfo):

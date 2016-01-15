@@ -1,14 +1,132 @@
 <name>Authority HTML detailed</name>
 <description>Detailed Authority HTML format.</description>
 
-<h1><BFE_FIELD tag="100__a"/></h1>
-<style>.inside{margin-left: 10px;}</style>
-<div>
+<style>
+h1 {
+    font-weight: initial;
+    margin: 0 0 10px 0;
+}
+h2 {
+    font-size: initial;
+    font-weight: bold;
+    border-bottom: 2px solid #ccc;
+    padding: 4px;
+    margin: 0 0 10px 0;
+}
+h3 {
+    font-size: initial;
+    font-weight: normal;
+    font-variant: initial;
+    border: none;
+    margin: 0 0 4px 0;
+    padding: 4px;
+    width: auto;
+    border-bottom: 1px solid #ccc;
+    background-color: #eee;
+    color: #555;
+}
+.inside {
+    margin: 10px;
+}
+.row {
+    margin: 0 0 10px 0;
+}
+.row:after {
+    box-sizing: border-box;
+    content: "";
+    clear: both;
+    display: block;
+}
+.column {
+    box-sizing: border-box;
+    float: left;
+    padding: 0 10px 0 10px;
+    width: 33.33%;
+}
+.column ul {
+    margin: 0;
+    padding: 0;
+}
+.column ul li {
+    list-style: none;
+    padding: 4px;
+}
+.column ul li:hover {
+    background-color: #eee;
+}
+ol li {
+    padding: 4px;
+}
+table {
+    border-spacing: 0;
+    margin: 0;
+    width: 100%;
+}
+table tr {
+    display: table-row;
+}
+table tr:hover {
+    background-color: #eee;
+}
+table tr th {
+    text-align: left;
+    padding: 4px;
+}
+table tr td {
+    padding: 4px;
+}
+</style>
 
-<BFE_AUTHORITY_AUTHOR main_name="no" detail="yes"/>
-
-<BFE_AUTHORITY_PUBLICATIONS detail="yes"/>
-<BFE_AUTHORITY_LINKS detail="yes"/>
-<BFE_AUTHORITY_CONTROL_NO/>
-
+<div class="vcard">
+<div class="row">
+    <BFE_FIELD tag="100__a" prefix="<h1 class='fn'>" suffix="</h1>" />
+    <BFE_FIELD tag="371__0" prefix="<span class='org'>" suffix="</span>" />
 </div>
+
+<h2>Personal Information</h2>
+<div class="row">
+    <div class="column">
+        <h3>Workspace</h3>
+        <table>
+            <tbody>
+                <BFE_FIELD
+                    prefix="<tr><th>Department</th><td>"
+                    suffix="</td></tr>"
+                    tag="371__i" />
+                <BFE_FIELD
+                    prefix="<tr><th>Group</th><td>"
+                    suffix="</td></tr>"
+                    tag="371__g" />
+                <BFE_FIELD
+                    prefix="<tr><th>Section</th><td>"
+                    suffix="</td></tr>"
+                    tag="371__j" />
+                <BFE_AUTHORITY_CONTROL_NO
+                    prefix="<tr><th>Control numbers</th><td>"
+                    suffix="</td></tr>"
+                    print_title="no" />
+          </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <h3>Contact</h3>
+        <BFE_AUTHORITY_CONTACT
+            prefix="<table><tbody>"
+            suffix="</tbody></table>"
+            vcard_support="yes"
+            default="<i>No contact information.</i>" />
+    </div>
+    <div class="column">
+        <h3>Profiles</h3>
+        <BFE_AUTHORITY_LINKS
+            print_title="no"
+            default="<i>No profiles.</i>"/>
+    </div>
+</div>
+</div>
+
+<h2>Publications</h2>
+<BFE_AUTHORITY_PUBLICATIONS
+    print_title="no"
+    detail="yes"
+    default="<i>No publications.</i>" />

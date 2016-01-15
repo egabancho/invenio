@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 CERN.
+# Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,9 +30,11 @@ from invenio.bibauthority_engine import \
     get_low_level_recIDs_from_control_no, \
     get_dependent_records_for_control_no
 
+
 __revision__ = "$Id$"
 
-def format_element(bfo):
+
+def format_element(bfo, print_title="yes"):
     """ Prints the control number of an author authority record in HTML.
     By default prints brief version.
 
@@ -57,6 +59,10 @@ def format_element(bfo):
         recIDs = get_dependent_records_for_control_no(control_no)
         count = len(recIDs)
         count_string = str(count) + " dependent records"
+
+        control_no_html = "<span title='{0}'>{1}</span>".format(
+            count_string, control_no)
+
         from urllib import quote
         # if we have dependent records, provide a link to them
         if count:
@@ -86,8 +92,9 @@ def format_element(bfo):
 
             prefix = prefix_pattern % (url_str)
             count_string = prefix + count_string + postfix
-        #assemble the html and append to list
-        html_str = control_no + " (" + count_string + ")"
+
+            control_no_html = "{0}{1}{2}".format(
+                prefix, control_no_html, postfix)
 
         # check if there are more than one authority record with the same
         # control number. If so, warn the user about this inconsistency.
@@ -101,22 +108,25 @@ def format_element(bfo):
                     "&c=" + CFG_BIBAUTHORITY_AUTHORITY_COLLECTION_NAME + \
                     "&sc=1" + \
                     "&ln=" + bfo.lang
-            html_str += \
+            control_no_html += \
                 ' <span style="color:red">' + \
                 '(Warning, there is currently ' + \
                 '<a href="' + url_str + '">more than one authority record</a> ' + \
                 'with this Control Number)' + \
                 '</span>'
 
-        control_nos_formatted.append(html_str)
+        control_nos_formatted.append(control_no_html)
 
-    title = "<strong>" + _("Control Number(s)") + "</strong>"
+    result = ""
     if control_nos_formatted:
-        content = "<ul><li>" + "</li><li> ".join(control_nos_formatted) + "</li></ul>"
-    else:
-        content = "<strong style='color:red'>Missing !</strong>"
+        result = "<ul><li>" + "</li><li>".join(control_nos_formatted) + "</li></ul>"
 
-    return "<p>" + title + ": " + content + "</p>"
+    if print_title.lower() == "yes":
+        title = "<strong>" + _("Control Number(s)") + "</strong>"
+        result = title + ": " + result
+
+    return result
+
 
 def escape_values(bfo):
     """

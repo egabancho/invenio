@@ -10,8 +10,8 @@
 <BFE_AUTHORITY_JOURNAL detail="yes"/>
 <BFE_AUTHORITY_SUBJECT detail="yes"/>
 
-<BFE_AUTHORITY_AUTHOR_PUBLICATIONS detail="yes"/>
-<BFE_AUTHORITY_LINKS detail="yes"/>
-<BFE_AUTHORITY_CONTROL_NO/>
+<BFE_AUTHORITY_AUTHOR_PUBLICATIONS detail="yes" prefix="<p>" suffix="</p>" />
+<BFE_AUTHORITY_LINKS detail="yes" prefix="<p>" suffix="</p>" />
+<BFE_AUTHORITY_CONTROL_NO prefix="<p>" suffix="</p>" />
 
 </div>

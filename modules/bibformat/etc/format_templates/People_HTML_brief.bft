@@ -1,4 +1,26 @@
 <name>Default HTML brief</name>
 <description>Brief Authority HTML format.</description>
 
-<BFE_AUTHORITY_AUTHOR detail="no"/>
+<BFE_AUTHORITY_AUTHOR
+    prefix="<span style='font-size: 1.1em;'>"
+    suffix="</span>"
+    detail="no" />
+<BFE_FIELD tag="371__0" prefix="(" suffix=")" />
+
+<small>
+    <ul style="padding: 0; margin: 4px 0 4px 0;">
+        <BFE_AUTHORITY_DESCRIPTION
+            prefix="<li style='display: inline; list-style-type: none;'>"
+            suffix="</li>" />
+        <BFE_AUTHORITY_CONTACT
+            contact_type="email"
+            prefix="<li style='display: inline; list-style-type: none; padding-left: 10px;'>"
+            suffix="</li>"
+            icon="yes" />
+        <BFE_AUTHORITY_CONTACT
+            contact_type="phone"
+            prefix="<li style='display: inline; list-style-type: none; padding-left: 10px;'>"
+            suffix="</li>"
+            icon="yes" />
+    </ul>
+</small>
