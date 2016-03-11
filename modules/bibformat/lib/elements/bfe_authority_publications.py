@@ -67,8 +67,8 @@ def format_element(bfo, print_title="yes"):
         from urllib import quote
         # if we have dependent records, provide a link to them
         if length:
-            prefix_pattern = "<a href='" + CFG_SITE_URL + "%s" + "'>"
             postfix = "</a>"
+            prefix_pattern = "<a href='" + CFG_SITE_URL + "%s" + "'>"
             url_str = ''
             # print as many of the author's publications as the CFG_BIBAUTHORITY_PUBLICATION_VIEW_LIMIT allows
             for i in range(length if length<CFG_BIBAUTHORITY_PUBLICATION_VIEW_LIMIT else CFG_BIBAUTHORITY_PUBLICATION_VIEW_LIMIT):
@@ -91,17 +91,18 @@ def format_element(bfo, print_title="yes"):
     #else:
     #    content = "<strong style='color:red'>Missing !</strong>"
 
-    p_val = quote(" or ".join(parameters))
-        # include "&c=" parameter for bibliographic records
-        # and one "&c=" parameter for authority records
-    url_str = \
-    "/search" + \
-    "?p=" + p_val + \
-    "&c=" + quote(CFG_SITE_NAME) + \
-    "&c=" + CFG_BIBAUTHORITY_AUTHORITY_COLLECTION_NAME + \
-    "&sc=1" + \
-    "&ln=" + bfo.lang
-    prefix = prefix_pattern % url_str
+        p_val = quote(" or ".join(parameters))
+            # include "&c=" parameter for bibliographic records
+            # and one "&c=" parameter for authority records
+        url_str = \
+        "/search" + \
+        "?p=" + p_val + \
+        "&c=" + quote(CFG_SITE_NAME) + \
+        "&c=" + CFG_BIBAUTHORITY_AUTHORITY_COLLECTION_NAME + \
+        "&sc=1" + \
+        "&ln=" + bfo.lang
+        prefix = prefix_pattern % url_str
+
     if result:
         result += prefix + "See all " + str(count) + " publications" + postfix
 
