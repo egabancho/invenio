@@ -81,6 +81,7 @@ class Tickets(object):
 
     """Handle ticket accumulation and dispatching."""
 
+
     def __init__(self, records):
         self.records = records
         self.policy_method = None
@@ -110,7 +111,7 @@ class Tickets(object):
         self.policy_method = policy_translator[self.ticket_creation_policy]
 
     @staticmethod
-    def submit_ticket(msg_subject, msg, record_id):
+    def submit_ticket(msg_subject, msg, record_id, **kwargs):
         """Submit a single ticket."""
         if isinstance(msg, unicode):
             msg = msg.encode("utf-8")
@@ -120,16 +121,16 @@ class Tickets(object):
                                    queue=task_get_option("queue", "Bibcheck"))
         if record_id is not None:
             submit = functools.partial(submit, recordid=record_id)
-        res = submit()
-        write_message("Bibcatalog returned %s" % res)
+        res = submit(**kwargs)
+        write_message("Bibcatalog returned {0}".format(res))
         if res > 0:
             BIBCATALOG_SYSTEM.ticket_comment(None, res, msg)
 
     def submit(self):
         """Generate and submit tickets for the bibcatalog system."""
         self.resolve_ticket_creation_policy()
-        for ticket_information in self.policy_method():
-            self.submit_ticket(*ticket_information)
+        for ticket_information, kwargs in self.policy_method():
+            self.submit_ticket(*ticket_information, **kwargs)
 
     def _generate_subject(self, issue_type, record_id, rule_name):
         """Generate a fitting subject based on what information is given."""
@@ -152,50 +153,49 @@ class Tickets(object):
         output = collections.defaultdict(list)
         for record in self.records:
             for issue in record.issues:
-                output[issue.rule].append((record, issue.nature, issue.msg))
+                output[issue.rule['name']].append((record, issue.nature, issue.msg, issue.rule))
         for rule_name in output.iterkeys():
             msg = []
-            for record, issue_nature, issue_msg in output[rule_name]:
+            for record, issue_nature, issue_msg, rule in output[rule_name]:
                 msg.append("{issue_nature}: {issue_msg}".format(
                     issue_nature=issue_nature, issue_msg=issue_msg))
                 msg.append("Edit record ({record_id}) {url}\n".format(
                     record_id=record.record_id, url=self._get_url(record.record_id)))
             msg_subject = self._generate_subject(None, None, rule_name)
-            yield (msg_subject, "\n".join(msg), None)
+            yield (msg_subject, "\n".join(msg), None), rule
 
     def tickets_per_record(self):
         """Generate with the `per-record` policy."""
         output = collections.defaultdict(list)
         for record in self.records:
             for issue in record.issues:
-                output[record.record_id].append((issue.nature, issue.msg))
+                output[record.record_id].append((issue.nature, issue.msg, issue.rule))
         for record_id in output.iterkeys():
             msg = []
-            for issue in output[record_id]:
-                issue_nature, issue_msg = issue
+            for issue_nature, issue_message, rule in output[record_id]:
                 msg.append("{issue_type}: {rule_messages}".
                            format(record_id=record_id,
                                   issue_type=issue_nature,
                                   rule_messages=issue_msg))
             msg.append("Edit record: {url}".format(url=self._get_url(record_id)))
             msg_subject = self._generate_subject(None, record_id, None)
-            yield (msg_subject, "\n".join(msg), record_id)
+            yield (msg_subject, "\n".join(msg), record_id), rule
 
     def tickets_per_rule_per_record(self):
         """Generate with the `per-rule-per-record` policy."""
         output = collections.defaultdict(list)
         for record in self.records:
             for issue in record.issues:
-                output[(issue.rule, record)].append((issue.nature, issue.msg))
+                output[(issue.rule['name'], record)].append((issue.nature, issue.msg, issue.rule))
         for issue_rule, record in output.iterkeys():
             msg = []
-            for issue_nature, issue_msg in output[(issue_rule, record)]:
+            for issue_nature, issue_msg , rule in output[(issue_rule, record)]:
                 msg.append("{issue_message}".format(issue_message=issue_msg))
             msg.append("Edit record ({record_id}): {url}".format(url=self._get_url(record.record_id),
                                                                  record_id=record.record_id))
             msg_subject = self._generate_subject(issue_nature, record.record_id,
                                                  issue_rule)
-            yield (msg_subject, "\n".join(msg), record.record_id)
+            yield (msg_subject, "\n".join(msg), record.record_id), rule
 
 
 class Issue(object):
@@ -223,6 +223,7 @@ class AmendableRecord(dict):
         dict.__init__(self, record)
         self.issues = []
         self.valid = True
+        self.warn = False
         self.amended = False
         self.holdingpen = False
         self.rule = None
@@ -459,14 +460,15 @@ class AmendableRecord(dict):
         self.set_amended("Added subfield %s='%s' to field %s" % (code, value,
             position[0][:5]))
 
-    def set_amended(self, message):
+    def set_amended(self, message, warn=False):
         """ Mark the record as amended """
         write_message("Amended record %s by rule %s: %s" %
                 (self.record_id, self.rule["name"], message))
-        self.issues.append(Issue('amendment', self.rule['name'], message))
+        self.issues.append(Issue('amendment', self.rule, message))
         self.amended = True
         if self.rule["holdingpen"]:
             self.holdingpen = True
+        self.warn = warn if warn else self.warn
 
     def set_invalid(self, reason):
         """ Mark the record as invalid """
@@ -475,14 +477,15 @@ class AmendableRecord(dict):
                                                    record_id=self.record_id)
         write_message("Record {url} marked as invalid by rule {name}: {reason}".
                       format(url=url, name=self.rule["name"], reason=reason))
-        self.issues.append(Issue('error', self.rule['name'], reason))
+        self.issues.append(Issue('error', self.rule, reason))
         self.valid = False
 
     def warn(self, msg):
         """ Add a warning to the record """
-        self.issues.append(Issue('warning', self.rule['name'], msg))
+        self.issues.append(Issue('warning', self.rule, msg))
         write_message("[WARN] record %s by rule %s: %s" %
                 (self.record_id, self.rule["name"], msg))
+        self.warn = True
 
     def set_rule(self, rule):
         """ Set the current rule the record is been checked against """
@@ -611,7 +614,7 @@ def task_run_core():
                 else:
                     records_to_upload_replace.append(record)
 
-            if not record.valid:
+            if not record.valid or record.warn:
                 records_to_submit_tickets.append(record)
 
         if len(records_to_submit_tickets) >= CFG_BATCH_SIZE:
@@ -811,7 +814,8 @@ def load_rule(config, plugins, rule_name):
         if key in ("filter_pattern",
                    "filter_field",
                    "filter_collection",
-                   "filter_limit"):
+                   "filter_limit",
+                   "to_address"):
             rule[key] = val
         elif key in ("holdingpen",
                      "consider_deleted_records"):
@@ -876,25 +880,16 @@ def get_recids_for_rules(rules):
     for rule_name, rule in rules.iteritems():
         if "filter_pattern" in rule or "filter_collection" in rule:
             query = rule.get("filter_pattern", '')
-            if "filter_collection" in rule:
-                collections = rule["filter_collection"].split()
-            else:
-                collections = None
-            write_message("Performing given search query: '%s'" % query)
-            if collections:
-                result = perform_request_search(
-                    p=query,
-                    of='intbitset',
-                    wl=rule.get('filter_limit', 0),
-                    f=rule.get('filter_field', None),
-                    c=collections
-                )
-            else:
-                result = search_pattern(
-                    p=query,
-                    wl=rule.get('filter_limit', 0),
-                    f=rule.get('filter_field', None),
-                )
+            collections = rule["filter_collection"].split(',') \
+                if 'filter_collection' in rule else []
+            write_message("Performing given search query: '{0}', '{1}'".format(query, collections))
+            result = perform_request_search(
+                p=query,
+                of='intbitset',
+                wl=rule.get('filter_limit', 0),
+                f=rule.get('filter_field', None),
+                c=collections
+            )
         else:
             result = intbitset(trailing_bits=True)
 
@@ -990,6 +985,8 @@ def print_rules():
             print " - Filter: %s" % rule["filter_pattern"]
         if "filter_collection" in rule:
             print " - Filter collection: %s" % rule["filter_collection"]
+        if "to_address" in rule:
+            print " - To Address: %s" % rule["to_address"]
         print " - Checker: %s" % rule["check"]
         if len(rule["checker_params"]) > 0:
             print "      Parameters:"
