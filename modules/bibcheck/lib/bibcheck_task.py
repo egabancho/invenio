@@ -795,11 +795,9 @@ def get_recids_for_rules(rules):
     for rule_name, rule in rules.iteritems():
         if "filter_pattern" in rule:
             query = rule["filter_pattern"]
-            if "filter_collection" in rule:
-                collections = rule["filter_collection"].split()
-            else:
-                collections = None
-            write_message("Performing given search query: '%s'" % query)
+            collections = rule["filter_collection"].split(',') \
+                if 'filter_collection' in rule else []
+            write_message("Performing given search query: '{0}', '{1}'".format(query, collections))
             if collections:
                 result = perform_request_search(
                     p=query,
