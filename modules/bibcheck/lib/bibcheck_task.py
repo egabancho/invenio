@@ -223,6 +223,7 @@ class AmendableRecord(dict):
         dict.__init__(self, record)
         self.issues = []
         self.valid = True
+        self.warn = False
         self.amended = False
         self.holdingpen = False
         self.rule = None
@@ -383,7 +384,7 @@ class AmendableRecord(dict):
         self.set_amended("Added subfield %s='%s' to field %s" % (code, value,
             position[0][:5]))
 
-    def set_amended(self, message):
+    def set_amended(self, message, warn=False):
         """ Mark the record as amended """
         write_message("Amended record %s by rule %s: %s" %
                 (self.record_id, self.rule["name"], message))
@@ -391,6 +392,7 @@ class AmendableRecord(dict):
         self.amended = True
         if self.rule["holdingpen"]:
             self.holdingpen = True
+        self.warn = warn if warn else self.warn
 
     def set_invalid(self, reason):
         """ Mark the record as invalid """
@@ -407,6 +409,7 @@ class AmendableRecord(dict):
         self.issues.append(Issue('warning', self.rule['name'], msg))
         write_message("[WARN] record %s by rule %s: %s" %
                 (self.record_id, self.rule["name"], msg))
+        self.warn = True
 
     def set_rule(self, rule):
         """ Set the current rule the record is been checked against """
@@ -535,7 +538,7 @@ def task_run_core():
                 else:
                     records_to_upload_replace.append(record)
 
-            if not record.valid:
+            if not record.valid or record.warn:
                 records_to_submit_tickets.append(record)
 
         if len(records_to_submit_tickets) >= CFG_BATCH_SIZE:
